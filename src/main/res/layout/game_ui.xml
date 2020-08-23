@@ -16,67 +16,6 @@
         app:scale_base_width="1000"
         tools:ignore="MissingPrefix">
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ui_score_bg01"
-            app:scale_width="300"
-            app:scale_height="170"
-            app:scale_left="680"
-            app:scale_top="50"
-            />
-        <TextView
-            android:layout_width="300dp"
-            android:layout_height="150dp"
-            android:textColor="#fff"
-            android:text="현재 스코어"
-            android:textAlignment="center"
-            android:textStyle="bold"
-            app:scale_textsize="30"
-            app:scale_width="300"
-            app:scale_height="50"
-            app:scale_left="680"
-            app:scale_top="80"
-            />
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ui_score_bg02"
-            app:scale_width="300"
-            app:scale_height="150"
-            app:scale_left="680"
-            app:scale_top="90"
-            />
-
-        <TextView
-            android:id="@+id/score"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/notosanskrmedium"
-            android:text="0"
-            android:textAlignment="center"
-            android:textColor="#C0EF3629"
-            android:textStyle="bold"
-            app:scale_height="120"
-            app:scale_left="650"
-            app:scale_top="80"
-            app:scale_width="300"
-            app:scale_textsize="60"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/notosanskrmedium"
-            android:text="점"
-            android:textAlignment="center"
-            android:textColor="#C0EF3629"
-            android:textStyle="bold"
-            app:scale_height="100"
-            app:scale_left="750"
-            app:scale_textsize="40"
-            app:scale_top="120"
-            app:scale_width="300" />
-
 
         <ImageView
             android:id="@+id/line01"
@@ -165,10 +104,10 @@
             android:id="@+id/backgraoud03"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="#70ACFF24"
-            app:scale_height="1450"
+            android:background="@drawable/gradient_green"
+            app:scale_height="1800"
             app:scale_left="690"
-            app:scale_top="450"
+            app:scale_top="0"
             app:scale_width="300"
             />
 
@@ -192,6 +131,67 @@
             app:scale_left="710"
             app:scale_top="1300"
             app:scale_width="300"/>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ui_score_bg01"
+            app:scale_width="300"
+            app:scale_height="170"
+            app:scale_left="680"
+            app:scale_top="50"
+            />
+        <TextView
+            android:layout_width="300dp"
+            android:layout_height="150dp"
+            android:textColor="#fff"
+            android:text="현재 스코어"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            app:scale_textsize="30"
+            app:scale_width="300"
+            app:scale_height="50"
+            app:scale_left="680"
+            app:scale_top="80"
+            />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ui_score_bg02"
+            app:scale_width="300"
+            app:scale_height="150"
+            app:scale_left="680"
+            app:scale_top="90"
+            />
+
+        <TextView
+            android:id="@+id/score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/notosanskrmedium"
+            android:text="0"
+            android:textAlignment="center"
+            android:textColor="#C0EF3629"
+            android:textStyle="bold"
+            app:scale_height="120"
+            app:scale_left="650"
+            app:scale_top="80"
+            app:scale_width="300"
+            app:scale_textsize="60"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/notosanskrmedium"
+            android:text="점"
+            android:textAlignment="center"
+            android:textColor="#C0EF3629"
+            android:textStyle="bold"
+            app:scale_height="100"
+            app:scale_left="750"
+            app:scale_textsize="40"
+            app:scale_top="120"
+            app:scale_width="300" />
+
 
 
     </com.ssomai.android.scalablelayout.ScalableLayout>

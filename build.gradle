@@ -56,15 +56,26 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
 
+buildscript {
+    dependencies {
+
+    }
+}
+
 apply plugin: 'com.google.ar.sceneform.plugin'
 
 
-/*sceneform.asset('sampledata/album/redvelvet.fbx', // 'Source Asset Path' specified during import.
+/* sceneform.asset('sampledata/music_note/greenote.obj', // 'Source Asset Path' specified during import.
         'default',                            // 'Material Path' specified during import.
-        'sampledata/album/redvelvet.sfa',         // '.sfa Output Path' specified during import.
-        'src/main/res/raw/redvelvet')              // '.sfb Output Path' specified during import.
+        'sampledata/music_note/greennote.sfa',         // '.sfa Output Path' specified during import.
+        'src/main/res/raw/green')// '.sfb Output Path' specified during import.
 
- */
+sceneform.asset('sampledata/music_note/musicalnote_bevel.obj', // 'Source Asset Path' specified during import.
+        'default',                            // 'Material Path' specified during import.
+        'sampledata/music_note/musicalnote_bevel.sfa',         // '.sfa Output Path' specified during import.
+        'src/main/res/raw/musicalnote_bevel')*/
+
+
 
 /*
 sceneform.asset('sampledata/models/BlueBlock.fbx', // 'Source Asset Path' specified during import.

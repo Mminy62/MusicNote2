@@ -21,6 +21,10 @@ import com.google.ar.sceneform.math.Quaternion;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.math.Vector3Evaluator;
 import com.google.ar.sceneform.rendering.ModelRenderable;
+import com.google.ar.schemas.lull.Quat;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class GameNote extends Node {
 
@@ -44,6 +48,8 @@ public class GameNote extends Node {
     Runnable m_handlerTask ;
     int timeleft = 2;
 
+
+
     MediaPlayer effectSound;
 
 
@@ -66,14 +72,14 @@ public class GameNote extends Node {
         this.setRenderable(noteRenderable);
 
         //음표크기 (기본설정 0.5f)
-        this.setLocalScale(new Vector3(0.34f, 0.36f, 0.34f));
+        this.setLocalScale(new Vector3(0.20f, 0.20f, 0.20f));
         this.setParent(gameSystem);
 
         setPosition();
 
         //음표 회전
         Quaternion rotation1 = Quaternion.axisAngle(new Vector3(1.0f, 0.0f, 0.0f), 0); // rotate X axis 90 degrees
-        Quaternion rotation2 = Quaternion.axisAngle(new Vector3(0.0f, 1.0f, 0.0f), 180); // rotate Y axis 90 degrees
+        Quaternion rotation2 = Quaternion.axisAngle(new Vector3(0.0f, 1.0f, 0.0f), 0); // rotate Y axis 90 degrees
         this.setLocalRotation(Quaternion.multiply(rotation1, rotation2));
 
         // this.setLocalRotation(Quaternion.axisAngle(this.getUp(), 90));
@@ -91,9 +97,10 @@ public class GameNote extends Node {
         m_handler = new Handler();
 
         this.setOnTapListener((v, event) ->{
+
             getScore(); // 터치 시 50씩 추가
 
-            if(distance > 2.5f && distance < 3.2f){
+            if(distance > 3.4f && distance < 4.0f){
 
                 getTapButton.setVisibility(View.VISIBLE);
                 background.setVisibility(View.VISIBLE);
@@ -139,9 +146,11 @@ public class GameNote extends Node {
         // 노래가 종료될 시에도 삭제 (어차피 게임중에는 pause 못하긴 할듯 => 그래서 그냥 노래 플레이중 아니면 삭제)
         if(gameSystem.isPlaying != 2) removeNote();
 
-        if(distance > HEIGHT * 3f){
+        if(distance > HEIGHT * 3.5f){
             removeNote();
         }
+
+
 
     }
 
@@ -157,7 +166,7 @@ public class GameNote extends Node {
         Vector3 movePos = Vector3.add(parentPos, gameSystem.SetNotePosition(position));
         movePos = Vector3.add(movePos, down.scaled(distance));
 
-        movePos = Vector3.add(movePos, right.scaled(0.07f));
+        movePos = Vector3.add(movePos, right.scaled(-0.5f));
         //상수가 증가할수록 화면 오른쪽으로 음표가 이동
 
         this.setWorldPosition(movePos);
@@ -176,19 +185,31 @@ public class GameNote extends Node {
         Vector3 movePos = Vector3.add(parentPos, gameSystem.SetNotePosition(position));
         movePos = Vector3.add(movePos, down.scaled(distance));
 
-        movePos = Vector3.add(movePos, right.scaled(0.07f));
+        movePos = Vector3.add(movePos, right.scaled(-0.5f));
 
         this.setWorldPosition(movePos);
     }
 
     public void getScore(){
-        removeNote();
+        //removeNote();
         gameSystem.getScore(score);// 50씩 보내기
+        Timer timer = new Timer();
+        TimerTask tt = new TimerTask() {
+            int count = 0;
+            @Override
+            public void run() {
+                //if(count >= 20) removeNote();
+                Quaternion rotation = Quaternion.axisAngle(getUp(), 60);
+                setWorldRotation(Quaternion.multiply(rotation, getWorldRotation()));
+                count++;
+            }
+        };
+
+        timer.schedule(tt, 0, 50);
     }
 
     public void removeNote(){
         gameSystem.removeChild(this);
-        //this.tapButton01.setImageResource(R.drawable.ic_tap_btn02); // 잘 됨
         this.setParent(null);
     }
 }

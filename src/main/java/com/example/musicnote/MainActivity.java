@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -18,7 +19,9 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.AudioManager;
 import android.media.Image;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.ContactsContract;
@@ -57,7 +60,9 @@ import com.google.ar.sceneform.HitTestResult;
 import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.math.Quaternion;
 import com.google.ar.sceneform.math.Vector3;
+import com.google.ar.sceneform.rendering.MaterialFactory;
 import com.google.ar.sceneform.rendering.ModelRenderable;
+import com.google.ar.sceneform.rendering.ShapeFactory;
 import com.google.ar.sceneform.ux.ArFragment;
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.geometry.LatLngBounds;
@@ -110,6 +115,7 @@ public class MainActivity extends AppCompatActivity
     // 마커 관련
     private Location[] markers = new Location[3];
     private Location logoLocation;
+    private Location[] handLocation = new Location[2];
 
     // ar 관련
     private View mLayout;  // Snackbar 사용하기 위해서는 View가 필요합니다.
@@ -122,6 +128,7 @@ public class MainActivity extends AppCompatActivity
     private AnchorNode logoAnchor;
 
     private ModelRenderable bofLogoRenderable;
+    private ModelRenderable handRenderable; //hand model
     private ModelRenderable[] musicNotes = new ModelRenderable[2];
 
     private ModelRenderable[] albumRenderable = new ModelRenderable[3]; // album Object들
@@ -137,6 +144,7 @@ public class MainActivity extends AppCompatActivity
     private float mCurrentAzim = 0f; // 방위각
     private float mCurrentPitch = 0f; // 피치
     private float mCurrentRoll = 0f; // 롤
+    Context context;
 
     // 음악 노트
     private int[] timerArray =
@@ -177,8 +185,13 @@ public class MainActivity extends AppCompatActivity
 
     // 게임 관련
     private GameSystem gameSystem;
+    private PointHand pointHand;
     public static MainActivity ma;
 
+    SoundPool soundPool;
+    int effectSoundID;
+
+    private boolean[] call = {true, true, true};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -205,21 +218,41 @@ public class MainActivity extends AppCompatActivity
 
         // 첫번째 마커
         markers[0] = new Location("point A"); //탐탐카페 앞에
-        markers[0].setLatitude(37.628704);
-        markers[0].setLongitude(127.077111);
+        markers[0].setLatitude(37.623475);
+        markers[0].setLongitude(127.077729);
         // 두번째 마커
         markers[1] = new Location("point B"); //롯데리아 앞에
-        markers[1].setLatitude(37.629034);
-        markers[1].setLongitude(127.076914);
+        markers[1].setLatitude(37.623112);
+        markers[1].setLongitude(127.07777);
         // 세번째 마커
         markers[2] = new Location("point C");
-        markers[2].setLatitude(37.629405);
-        markers[2].setLongitude(127.076625);
+        markers[2].setLatitude(37.622759);
+        markers[2].setLongitude(127.077827);
 
         // 로고 위치
         logoLocation = new Location("BOF LOGO");
-        logoLocation.setLatitude(37.628741);
-        logoLocation.setLongitude(127.077118);
+        logoLocation.setLatitude(37.622553);
+        logoLocation.setLongitude(127.077844);
+
+        handLocation[0] = new Location("point A"); //탐탐카페 앞에
+        handLocation[0].setLatitude(37.623475);
+        handLocation[0].setLongitude(127.077729);
+        // 두번째 마커
+        handLocation[1] = new Location("point B"); //롯데리아 앞에
+        handLocation[1].setLatitude(37.623112);
+        handLocation[1].setLongitude(127.07777);
+
+
+
+
+
+   /*     int colorWhite = context.getResources().getColor(R.color.colorWhite);
+        String scoreString = scoreText.toString();
+        int length = scoreString.length();
+        SpannableStringBuilder spannable = new SpannableStringBuilder(scoreString);
+        spannable.setSpan(new AbsoluteSizeSpan(45),0, 3, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannable.setSpan(new AbsoluteSizeSpan(60),4, length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannable.setSpan(new ForegroundColorSpan(colorWhite),3+1, length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);*/
 
         // 레이아웃을 위에 겹쳐서 올리는 부분
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -306,10 +339,11 @@ public class MainActivity extends AppCompatActivity
        // album = (ImageView) findViewById(R.id.album);
        // musicUiclass = new MusicUi(this, this, musicBar, musicTitle, play, album);
 
-
         musicUiclass = new MusicUi(this, this, musicBar, musicTitle, play);
 
 
+        soundPool = new SoundPool(5, AudioManager.STREAM_MUSIC,0);
+        effectSoundID = soundPool.load(getApplicationContext(),R.raw.effect_sound_03, 1);
 
         // 지도 객체 생성
         FragmentManager fm = getSupportFragmentManager();
@@ -366,7 +400,17 @@ public class MainActivity extends AppCompatActivity
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.orange_note)
+                .setSource(this, R.raw.hand)
+                .build().thenAccept(renderable -> handRenderable = renderable)
+                .exceptionally(
+                        throwable -> {
+                            Toast.makeText(this, "Unable to load hand logo model", Toast.LENGTH_SHORT).show();
+                            return null;
+                        }
+                );
+
+        ModelRenderable.builder()
+                .setSource(this, R.raw.bluenote)
                 .build().thenAccept(renderable -> musicNotes[0] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -386,7 +430,7 @@ public class MainActivity extends AppCompatActivity
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.nintendo)
+                .setSource(this, R.raw.redvelvet_album)
                 .build().thenAccept(renderable -> albumRenderable[0] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -395,8 +439,10 @@ public class MainActivity extends AppCompatActivity
                         }
                 );
 
+
+
         ModelRenderable.builder()
-                .setSource(this, R.raw.nintendo)
+                .setSource(this, R.raw.exo_album)
                 .build().thenAccept(renderable -> albumRenderable[1] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -406,7 +452,7 @@ public class MainActivity extends AppCompatActivity
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.nintendo)
+                .setSource(this, R.raw.nct_model)
                 .build().thenAccept(renderable -> albumRenderable[2] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -425,7 +471,7 @@ public class MainActivity extends AppCompatActivity
         marker1.setPosition(new LatLng(markers[0].getLatitude(), markers[0].getLongitude()));
         marker1.setHeight(70);
         marker1.setWidth(60);
-        marker1.setIcon(OverlayImage.fromResource(R.drawable.blacklogo));
+        marker1.setIcon(OverlayImage.fromResource(R.drawable.redlogo));
         marker1.setAnchor(new PointF(0.5f, 1));
         marker1.setMap(naverMap);
 
@@ -433,7 +479,7 @@ public class MainActivity extends AppCompatActivity
         marker2.setPosition(new LatLng(markers[1].getLatitude(), markers[1].getLongitude()));
         marker2.setHeight(70);
         marker2.setWidth(60);
-        marker2.setIcon(OverlayImage.fromResource(R.drawable.btslogo));
+        marker2.setIcon(OverlayImage.fromResource(R.drawable.exologo));
         marker2.setAnchor(new PointF(0.5f, 1));
         marker2.setMap(naverMap);
 
@@ -441,7 +487,7 @@ public class MainActivity extends AppCompatActivity
         marker3.setPosition(new LatLng(markers[2].getLatitude(), markers[2].getLongitude()));
         marker3.setHeight(70);
         marker3.setWidth(60);
-        marker3.setIcon(OverlayImage.fromResource(R.drawable.redlogo));
+        marker3.setIcon(OverlayImage.fromResource(R.drawable.nctlogo));
         marker3.setAnchor(new PointF(0.5f, 1));
         marker3.setMap(naverMap);
 
@@ -551,23 +597,26 @@ public class MainActivity extends AppCompatActivity
 
         for (int i = 0; i < 3; i++) {
             if (mAnchorNode[i] != null) {
-                // 혹시라도 오브젝트가 사라졌다면 (트래킹 모드가 해제되어서)
-                if (mAnchorNode[i].getAnchor().getTrackingState() != TrackingState.TRACKING
-                        && arSceneView.getArFrame().getCamera().getTrackingState() == TrackingState.TRACKING) {
-                    // Detach the old anchor
-                    List<Node> children = new ArrayList<>(mAnchorNode[i].getChildren());
-                    for (Node n : children) {
-                        Log.d(TAG, "find node list");
-                        if (n instanceof AlbumNode) {
-                            Log.d(TAG, "removed");
-                            mAnchorNode[i].removeChild(n);
-                            n.setParent(null);
+                if(call[i]){
+
+                    // 혹시라도 오브젝트가 사라졌다면 (트래킹 모드가 해제되어서)
+                    if (mAnchorNode[i].getAnchor().getTrackingState() != TrackingState.TRACKING
+                            && arSceneView.getArFrame().getCamera().getTrackingState() == TrackingState.TRACKING) {
+                        // Detach the old anchor
+                        List<Node> children = new ArrayList<>(mAnchorNode[i].getChildren());
+                        for (Node n : children) {
+                            Log.d(TAG, "find node list");
+                            if (n instanceof AlbumNode) {
+                                Log.d(TAG, "removed");
+                                mAnchorNode[i].removeChild(n);
+                                n.setParent(null);
+                            }
                         }
+                        arSceneView.getScene().removeChild(mAnchorNode[i]);
+                        mAnchorNode[i].getAnchor().detach();
+                        mAnchorNode[i].setParent(null);
+                        mAnchorNode[i] = null;
                     }
-                    arSceneView.getScene().removeChild(mAnchorNode[i]);
-                    mAnchorNode[i].getAnchor().detach();
-                    mAnchorNode[i].setParent(null);
-                    mAnchorNode[i] = null;
                 }
             }
         }
@@ -624,6 +673,7 @@ public class MainActivity extends AppCompatActivity
                 if (createNode(i) == false) continue;
             }
         }
+
         // BOF 로고 오브젝트 생성
         if(logoAnchor == null){
             createLogo();
@@ -731,7 +781,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onTap(HitTestResult hitTestResult, MotionEvent motionEvent) {
                 Intent intent = new Intent(getApplicationContext(), PopupActivity2.class);
-                String scoreString2 = gameSystem.currentScore + " 점";
+                String scoreString2 = gameSystem.finalScore + " 점";
                 intent.putExtra("Score", scoreString2);
                 startActivity(intent);
             }
@@ -836,7 +886,10 @@ public class MainActivity extends AppCompatActivity
 
         AlbumNode albumNode = new AlbumNode(mAnchorNode[i], albumRenderable[i],
                 timerArray, musicNotes, musicUiclass.getMediaPlayer(i), arSceneView);
-        music(albumNode, i);
+
+        PointHand pointHand = new PointHand(mAnchorNode[i], handRenderable, arSceneView);
+
+        music(albumNode,pointHand, i);
 
         int index = albumNode.getIndex();
         for(; albumNode.getTimer(index) < albumNode.getCurrentMediaPosition(); index++){
@@ -849,11 +902,14 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public void music(AlbumNode albumNode, int i) {
+    public void music(AlbumNode albumNode,PointHand pointHand, int i) {
         Context c = this;
 
         albumNode.setOnTapListener((v, event) -> {
             // 디버깅용 터치하면 사라지게
+            albumNode.removeNode();
+            soundPool.play(effectSoundID, 1f, 1f, 0, 0, 1.2f);
+            call[i] = false;
 
             /* gps를 이용한 거리
             float dLatitude = (float) (markers[i].getLatitude() - mCurrentLocation.getLatitude()) * 110900f;
@@ -864,6 +920,7 @@ public class MainActivity extends AppCompatActivity
             // AR자체의 world position을 이용한 거리
             Vector3 vec = Vector3.subtract(albumNode.getWorldPosition(), arSceneView.getScene().getCamera().getWorldPosition());
             float distance = (float) Math.sqrt(Vector3.dot(vec, vec));
+
 
             // 터치한 오브젝트와의 거리가 20m이내 일때만 터치 가능
             if (distance <= 20f) {
@@ -884,6 +941,7 @@ public class MainActivity extends AppCompatActivity
                     Snackbar.make(mLayout, "music start (거리: " + distance + "m)", Snackbar.LENGTH_SHORT).show();
                 }
             }
+
         });
     }
 }

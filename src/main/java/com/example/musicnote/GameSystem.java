@@ -106,6 +106,7 @@ public class GameSystem extends AnchorNode {
     NoteCreateTimer musicCreater = null;
 
     public int currentScore = 0; // 현재까지 얻은 점수
+    public int finalScore = 0; //최종 점수
 
     final float DISTANCE = 3f; // 3m (얼마나 앞에서 생성되게 할 것인지)
     final int DELAY = 2000; // 생성되고 퍼펙트 존(터치시 점수를 얻는 구역)까지 오는 데 걸리는 시간 (ms)
@@ -114,7 +115,8 @@ public class GameSystem extends AnchorNode {
 
     final int SCORE = 50;
 
-    final float INTERVAL = 0.60f; // 0.75m
+    final float INTERVAL = 0.70f; // 0.75m
+
 
     final TextView textView;
     final TextView textView2;
@@ -140,7 +142,7 @@ public class GameSystem extends AnchorNode {
 
 
 
-    ModelRenderable noteRenderable;
+    ModelRenderable[] noteRenderable = new ModelRenderable[3];
     ModelRenderable albumRenderable;
     Context context;
 
@@ -274,7 +276,7 @@ public class GameSystem extends AnchorNode {
             // 왼쪽 노트 타이밍 계산
             if(LeftTimerIndex < musicCreater.getLeftLength() && musicCreater.getLeftTimer(LeftTimerIndex) <= currentMediaPlayer.getCurrentPosition()  ){
               // GameNote 생성
-                GameNote note = new GameNote(arSceneView, this, noteRenderable, SPEED, HEIGHT, SCORE, 0,
+                GameNote note = new GameNote(arSceneView, this, noteRenderable[0], SPEED, HEIGHT, SCORE, 0,
                         getTapButton01, background01);
 
                 LeftTimerIndex++;
@@ -283,7 +285,7 @@ public class GameSystem extends AnchorNode {
             // 중간 노트 타이밍 계산
             if(MiddleTimerIndex < musicCreater.getMiddleLength() && musicCreater.getMiddleTimer(MiddleTimerIndex) <= currentMediaPlayer.getCurrentPosition() ){
                 // GameNote 생성
-                GameNote note = new GameNote(arSceneView, this, noteRenderable, SPEED, HEIGHT, SCORE, 1,
+                GameNote note = new GameNote(arSceneView, this, noteRenderable[1], SPEED, HEIGHT, SCORE, 1,
                         getTapButton02, background02);
 
                 MiddleTimerIndex++;
@@ -292,7 +294,7 @@ public class GameSystem extends AnchorNode {
             // 오른쪽 노트 타이밍 계산
             if(RightTimerIndex < musicCreater.getRightLength() && musicCreater.getRightTimer(RightTimerIndex) <= currentMediaPlayer.getCurrentPosition()){
                 // GameNote 생성
-                GameNote note = new GameNote(arSceneView, this, noteRenderable, SPEED, HEIGHT, SCORE, 2,
+                GameNote note = new GameNote(arSceneView, this, noteRenderable[2], SPEED, HEIGHT, SCORE, 2,
                         getTapButton03, background03);
 
                 RightTimerIndex++;
@@ -311,26 +313,6 @@ public class GameSystem extends AnchorNode {
         tapButton02.setVisibility(View.VISIBLE);
         tapButton03.setVisibility(View.VISIBLE);
 
-
-   /*  tapButton01.setOnTouchListener(new View.OnTouchListener(){
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN: {
-                        getTapButton01.setVisibility(View.VISIBLE);
-                        //tapButton01.setImageResource(R.drawable.ic_tap_btn02);
-                    }
-                    case MotionEvent.ACTION_UP:{
-                        getTapButton01.setVisibility(View.INVISIBLE);
-                        //tapButton01.setImageResource(R.drawable.ic_tap_btn);
-                        break;
-                    }
-                }
-                return false;
-            }
-        });
-
-*/
 
    /*
    * isPlaying == 0 -> 게임 아예 끄기
@@ -420,12 +402,13 @@ public class GameSystem extends AnchorNode {
         //this.setWorldPosition(position); // 위치 설정
     }
 
+    float leftInterval = INTERVAL - 0.03f;
     // 왼쪽 노트와 오른쪽 노트의 생성 위치를 조정하여 반환 (0: 왼쪽, 1: 오른쪽)
     public Vector3 SetNotePosition(int position){
         Camera camera = arSceneView.getScene().getCamera();
 
         if(position == 0){ // 왼쪽
-            return camera.getLeft().scaled(INTERVAL);
+            return camera.getLeft().scaled(leftInterval);
         }
         else if(position == 1){ // 중간
             return Vector3.zero();
@@ -440,6 +423,7 @@ public class GameSystem extends AnchorNode {
 
         int colorWhite = context.getResources().getColor(R.color.colorWhite);
         currentScore += score;
+        finalScore += score;
 
         String scoreString = "스코어 " + currentScore + " 점";
         int length = scoreString.length();
@@ -450,7 +434,7 @@ public class GameSystem extends AnchorNode {
 
 
         textView2.setText(spannable, TextView.BufferType.EDITABLE);
-        textView.setText(Integer.toString(currentScore));
+        textView.setText(Integer.toString(finalScore));
 
 
         soundPool.play(effectSoundID, 1f, 1f, 0, 0, 1.2f);
@@ -463,9 +447,25 @@ public class GameSystem extends AnchorNode {
 
     public void setUpModel(){
         ModelRenderable.builder()
-                .setSource(context,R.raw.orange_note)
-               // .setSource(context, R.raw.musicnote)
-                .build().thenAccept(renderable -> noteRenderable = renderable)
+                .setSource(context,R.raw.musicalnote_bevel)
+                .build().thenAccept(renderable -> noteRenderable[0] = renderable)
+                .exceptionally(
+                        throwable -> {
+                            return null;
+                        }
+                );
+
+        ModelRenderable.builder()
+                .setSource(context,R.raw.bluenote)
+                .build().thenAccept(renderable -> noteRenderable[1] = renderable)
+                .exceptionally(
+                        throwable -> {
+                            return null;
+                        }
+                );
+        ModelRenderable.builder()
+                .setSource(context,R.raw.green)
+                .build().thenAccept(renderable -> noteRenderable[2] = renderable)
                 .exceptionally(
                         throwable -> {
                             return null;

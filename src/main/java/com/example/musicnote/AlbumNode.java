@@ -1,6 +1,9 @@
 package com.example.musicnote;
 
+import android.content.Context;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -28,14 +31,18 @@ public class AlbumNode extends Node {
     private MediaPlayer mediaPlayer;
     private ArSceneView arSceneView;
 
+    SoundPool soundPool;
+    int effectSoundID;
+    Context context;
+
     AlbumNode(AnchorNode parent, ModelRenderable albumModel,
               int[] timerArray, ModelRenderable[] musicNotes,
               MediaPlayer mediaPlayer, ArSceneView arSceneView){
         this.setRenderable(albumModel);
+        //this.setRenderable(handModel);
 
-
-        this.setLocalScale(new Vector3(0.2f, 0.2f, 0.2f));
-        this.setLocalPosition(this.getUp().scaled(-2.5f)); // 스위치로 바꾸는 과정에서 이렇게함
+        this.setLocalScale(new Vector3(0.4f, 0.4f, 0.4f));
+        this.setLocalPosition(this.getUp().scaled(-2.5f)); // 스위치로 바꾸는 과정에서 이렇게함//-2.5f
         /*
         this.setLocalScale(new Vector3(1f, 1f, 1f));
         this.setLocalPosition(this.getUp().scaled(-0.5f));
@@ -49,7 +56,7 @@ public class AlbumNode extends Node {
 
         Vector3 cameraPos = arSceneView.getScene().getCamera().getWorldPosition();
         Vector3 objPos = this.getWorldPosition();
-        Vector3 objToCam = Vector3.subtract(cameraPos, objPos);
+        Vector3 objToCam = Vector3.subtract(cameraPos, objPos).negated();
         Vector3 up = this.getUp();
         Quaternion direction = Quaternion.lookRotation(objToCam, up);
         this.setWorldRotation(direction);
@@ -73,8 +80,7 @@ public class AlbumNode extends Node {
                 Random rand = new Random();
                 int i = rand.nextInt(musicNotes.length);
 
-               // MusicNote m = new MusicNote(parent, musicNotes[i], cameraPos);
-
+                //MusicNote m = new MusicNote(parent, musicNotes[i], cameraPos);
                 index++;
             }
         }
@@ -94,6 +100,16 @@ public class AlbumNode extends Node {
         }
     }
 
+    public void removeNode(){
+        parent.removeChild(this);
+        this.setParent(null);
+        arSceneView.getScene().removeChild(parent);
+        parent.getAnchor().detach();
+        parent.setParent(null);
+        parent = null;
+        Log.i("AlbumNode", "object is removed");
+
+    }
     // 뮤직게임 시작
     public void startGame(){
         time = 0f;

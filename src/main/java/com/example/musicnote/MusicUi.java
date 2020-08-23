@@ -19,16 +19,19 @@ import java.util.TimerTask;
 
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
+
 public class MusicUi{
     private MediaPlayer currentMediaPlayer;
     private ProgressBar musicBar;
+    // String[] title = {"빨간맛\n- 레드벨벳", "Love Shot\n-엑소 ","영웅\n- NCT127"};
     private TextView titleText;
     private ImageView playBtn;
     private TextView textView;
+    private TextView artistText;
     //private ImageView album;
-    String[] title = {"How You Like That\n- 블랙핑크", "DNA\n- 방탄소년단","빨간맛\n- 레드벨벳"};
+     String[] title = {"빨간맛\n- 레드벨벳", "Love Shot\n-엑소 ","영웅\n- NCT127"};
   //  final int[] FILEROOT = {R.drawable.blackpink_howyoulikethat, R.drawable.bts_dna, R.drawable.redvelvet_redflavor};
-    final int[] MEDIAROOT = {R.raw.blackpink, R.raw.bts, R.raw.red_velvet};
+    final int[] MEDIAROOT = {R.raw.red_velvet, R.raw.exo_loveshot, R.raw.nct127_hero};
     //MediaPlayer[] mediaPlayer = new MediaPlayer[3];
     List<MediaPlayer> mediaPlayers = new ArrayList<>(3);
 
