@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity
 
     // 게임 관련
     private GameSystem gameSystem;
-    private PointHand pointHand;
+ //   private PointHand pointHand;
     public static MainActivity ma;
 
     SoundPool soundPool;
@@ -302,9 +302,6 @@ public class MainActivity extends AppCompatActivity
         background03 = (ImageView)findViewById(R.id.backgraoud03);
 
 
-
-
-
         lineImage01.setVisibility(View.INVISIBLE);
         lineImage02.setVisibility(View.INVISIBLE);
         tapButton01.setVisibility(View.INVISIBLE);
@@ -384,6 +381,8 @@ public class MainActivity extends AppCompatActivity
         super.onPause();
         mSensorManager.unregisterListener(this, mAccelerometer);
         mSensorManager.unregisterListener(this, mMagnetometer);
+
+        gameSystem.currentMediaPlayer.pause();//앱 나가면 꺼지는 것
     }
 
 
@@ -636,6 +635,11 @@ public class MainActivity extends AppCompatActivity
 
         if (bofLogoRenderable == null) {
             Log.d(TAG, "onUpdate: bof logo Renderable is null");
+            return;
+        }
+
+        if (handRenderable == null) {
+            Log.d(TAG, "onUpdate: hand Renderable is null");
             return;
         }
 

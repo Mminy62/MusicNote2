@@ -26,7 +26,7 @@ public class PointHand extends Node {
         this.arSceneView = arSceneView;
 
         this.setLocalScale(new Vector3(0.4f, 0.4f, 0.4f));
-        this.setLocalPosition(this.getUp().scaled(-2.5f));
+        this.setLocalPosition(this.getUp().scaled(2f));
 
         Vector3 cameraPos = arSceneView.getScene().getCamera().getWorldPosition();
         Vector3 objPos = this.getWorldPosition();

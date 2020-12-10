@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../MusicNote.iml" filepath="$PROJECT_DIR$/../MusicNote.iml" group="MusicNote" />
-      <module fileurl="file://$PROJECT_DIR$/app.iml" filepath="$PROJECT_DIR$/app.iml" group="MusicNote/app" />
+      <module fileurl="file://$PROJECT_DIR$/../MusicNote.iml" filepath="$PROJECT_DIR$/../MusicNote.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MusicNote.app.iml" filepath="$PROJECT_DIR$/.idea/modules/MusicNote.app.iml" />
     </modules>
   </component>
 </project>
